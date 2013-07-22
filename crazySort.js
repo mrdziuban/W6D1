@@ -22,6 +22,7 @@ var crazyBubbleSort = function(arr, callback){
     var i = 0;
     madeAnySwaps = false;
     function loopSort(){
+      // Call callback to check whether any swaps were made while looping.
       if (i === arr.length - 1){
         callback();
         return;
@@ -32,6 +33,7 @@ var crazyBubbleSort = function(arr, callback){
             arr[i] = arr[i+1];
             arr[i+1] = tmp;
 
+            // Used to indicate to callback that a swap was made.
             madeAnySwaps = true;
           }
 
@@ -45,14 +47,17 @@ var crazyBubbleSort = function(arr, callback){
   };
 
   performSortPass(arr, function(){
+    // If any swaps were made, execute the whole thing again.
     if (madeAnySwaps) {
       crazyBubbleSort(arr, callback);
     }
+    // Finished sorting, print final message and sorted array.
     else {
       callback(arr)
     }
   })
 };
+
 
 crazyBubbleSort([5,3,1,4], function(arr){
   console.log("YOU DID IT GUYS" + " [" + arr + "]");
