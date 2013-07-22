@@ -4,10 +4,13 @@ var reader = readline.createInterface({
   output: process.stdout
 });
 
-var ticTacToe = function () {
-  var board = [["_","_","_"],["_","_","_"],["_","_","_"]];
+var ticTacToe = function (endGameCallback) {
+  var board = [[" "," "," "],[" "," "," "],[" "," "," "]];
 
   var gameOver = function () {
+    if (availMoves().length === 0){
+      return "CAT'S GAME";
+    }
     return (vert() || horiz() || diag());
   };
 
@@ -59,22 +62,27 @@ var ticTacToe = function () {
   };
 
   var move = function(mark, coord) {
-    if (board[coord[0]][coord[1]] === "_"){
+    if (board[coord[0]][coord[1]] === " "){
       board[coord[0]][coord[1]] = mark;
     }
   };
 
   var makeMove = function(moveCallback) {
-    reader.question("Enter your mark and coordinates (e.g. x 1,2)", function(answer){
+    reader.question("Enter your mark and coordinates (e.g. x 1,2): ", function(answer){
       mark = answer.split(" ")[0];
-      coord = answer.split(" ")[1];
-      if (coord === "c") {
-        coord = compChoice(mark)
+      if (mark !== "x" && mark !== "o"){
+        moveCallback(mark, [0,10]);
       }
-      else {
-        coord = coord.split(",");
+      else{
+        coord = answer.split(" ")[1];
+        if (coord === "c") {
+          coord = compChoice(mark)
+        }
+        else {
+          coord = coord.split(",");
+        }
+        moveCallback(mark, coord)
       }
-      moveCallback(mark, coord)
     })
   };
 
@@ -82,6 +90,7 @@ var ticTacToe = function () {
     if (gameOver()){
       printBoard();
       console.log("Winner: " + gameOver());
+      endGameCallback();
     }
     else{
       printBoard();
@@ -94,7 +103,10 @@ var ticTacToe = function () {
 
   var printBoard = function() {
     for (var i = 0; i < board.length; i++) {
-      console.log(board[i]);
+      console.log(board[i].join(" | "));
+      if (i !== 2){
+        console.log("--|---|--");
+      }
     }
   };
 
@@ -113,14 +125,14 @@ var ticTacToe = function () {
   };
 
   var undoMove = function(coord){
-    board[coord[0]][coord[1]] = "_";
+    board[coord[0]][coord[1]] = " ";
   };
 
   var availMoves = function(){
     var moves = [];
     for (var row = 0; row < 3; row++) {
       for (var col = 0; col < 3; col++) {
-        if(board[row][col] === "_"){
+        if(board[row][col] === " "){
           moves.push([row,col]);
         }
       }
@@ -131,4 +143,12 @@ var ticTacToe = function () {
   gameLoop();
 };
 
-ticTacToe();
+var endGameCallback = function () {
+  reader.question("Play again? ", function(answer){
+    if (answer === "yes"){
+      ticTacToe(endGameCallback);
+    }
+  })
+};
+
+ticTacToe(endGameCallback);
