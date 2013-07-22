@@ -12,15 +12,15 @@ var ticTacToe = function () {
   };
 
   var vert = function(){
-    for(var i = 0; i < 3; i++) {
+    for(var col = 0; col < 3; col++) {
       var xCounter = 0;
       var oCounter = 0;
-      for(var j = 0; j < 3; j++) {
-        if (board[j][i] === "x"){
-          xCounter++;
+      for(var row = 0; row < 3; row++) {
+        if (board[row][col] === "x"){
+          xCounter += 1;
         }
-        else if (board[j][i] === "o") {
-          oCounter++;
+        else if (board[row][col] === "o") {
+          oCounter += 1;
         }
       }
       if (xCounter === 3){
@@ -29,10 +29,8 @@ var ticTacToe = function () {
       else if (oCounter === 3){
         return "o";
       }
-      else {
-        return false;
-      }
     }
+    return false;
   };
 
   var horiz = function(){
@@ -69,8 +67,13 @@ var ticTacToe = function () {
   var makeMove = function(moveCallback) {
     reader.question("Enter your mark and coordinates (e.g. x 1,2)", function(answer){
       mark = answer.split(" ")[0];
-      coord = answer.split(" ")[1].split(",");
-
+      coord = answer.split(" ")[1];
+      if (coord === "c") {
+        coord = compChoice(mark)
+      }
+      else {
+        coord = coord.split(",");
+      }
       moveCallback(mark, coord)
     })
   };
@@ -93,6 +96,36 @@ var ticTacToe = function () {
     for (var i = 0; i < board.length; i++) {
       console.log(board[i]);
     }
+  };
+
+  var compChoice = function(mark){
+    avails = availMoves()
+    for( var i = 0; i < avails.length; i++) {
+      move(mark, avails[i]);
+      if (gameOver()){
+        undoMove(avails[i]);
+        return avails[i];
+      }
+      undoMove(avails[i]);
+    }
+    return avails[Math.floor(Math.random() * avails.length)];
+    // return avails[0];
+  };
+
+  var undoMove = function(coord){
+    board[coord[0]][coord[1]] = "_";
+  };
+
+  var availMoves = function(){
+    var moves = [];
+    for (var row = 0; row < 3; row++) {
+      for (var col = 0; col < 3; col++) {
+        if(board[row][col] === "_"){
+          moves.push([row,col]);
+        }
+      }
+    }
+    return moves;
   };
 
   gameLoop();
