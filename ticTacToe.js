@@ -67,39 +67,53 @@ var ticTacToe = function (endGameCallback) {
     }
   };
 
-  var makeMove = function(currentPlayer, moveCallback) {
-    reader.question("Enter your coordinates (e.g. 1,2): ", function(answer){
-      if (currentPlayer === 1) {
-        var mark = "x"
-      }
-      else {
-        var mark = "o"
-      }
-      if (answer === "c"){
-        var coord = compChoice(mark);
-      }
-      else{
-        var coord = answer.split(",");
-      }
+  var makeMove = function(currentPlayer, numPlayers, moveCallback) {
+    if (currentPlayer === 1) {
+      var mark = "x"
+    }
+    else {
+      var mark = "o"
+    }
+    if (numPlayers === 1 && currentPlayer === -1) {
+      console.log("Computer's turn...");
+      var coord = compChoice(mark);
       moveCallback(mark, coord)
+    }
+    else {
+      reader.question("Enter your coordinates (e.g. 1,2): ", function(answer){
+        var coord = answer.split(",");
+        moveCallback(mark, coord)
+      })
+    }
+  };
+
+  var setNumPlayers = function (numPlayersCallback) {
+    reader.question("Enter number of human players: ", function(answer){
+      var numPlayers = parseInt(answer);
+      numPlayersCallback(numPlayers)
     })
   };
 
-  var gameLoop = function(currentPlayer) {
-    if (typeof(currentPlayer) === "undefined"){
-      var currentPlayer = 1;
+  var gameLoop = function(currentPlayer, numPlayers) {
+    if (currentPlayer === 0){
+      currentPlayer = 1;
     }
-    if (gameOver()){
+    if (typeof(numPlayers) === "undefined"){
+      setNumPlayers(function(numPlayers){
+        gameLoop(0, numPlayers);
+      })
+    }
+    else if (gameOver()){
       printBoard();
       console.log("Winner: " + gameOver());
       endGameCallback();
     }
     else{
       printBoard();
-      makeMove(currentPlayer, function(mark, coord){
+      makeMove(currentPlayer, numPlayers, function(mark, coord){
         move(mark, coord);
         currentPlayer *= -1;
-        gameLoop(currentPlayer);
+        gameLoop(currentPlayer, numPlayers);
       })
     }
   };
@@ -124,7 +138,6 @@ var ticTacToe = function (endGameCallback) {
       undoMove(avails[i]);
     }
     return avails[Math.floor(Math.random() * avails.length)];
-    // return avails[0];
   };
 
   var undoMove = function(coord){
@@ -143,7 +156,7 @@ var ticTacToe = function (endGameCallback) {
     return moves;
   };
 
-  gameLoop();
+  gameLoop(0);
 };
 
 var endGameCallback = function () {
