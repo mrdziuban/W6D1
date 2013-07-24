@@ -67,26 +67,28 @@ var ticTacToe = function (endGameCallback) {
     }
   };
 
-  var makeMove = function(moveCallback) {
-    reader.question("Enter your mark and coordinates (e.g. x 1,2): ", function(answer){
-      mark = answer.split(" ")[0];
-      if (mark !== "x" && mark !== "o"){
-        moveCallback(mark, [0,10]);
+  var makeMove = function(currentPlayer, moveCallback) {
+    reader.question("Enter your coordinates (e.g. 1,2): ", function(answer){
+      if (currentPlayer === 1) {
+        var mark = "x"
+      }
+      else {
+        var mark = "o"
+      }
+      if (answer === "c"){
+        var coord = compChoice(mark);
       }
       else{
-        coord = answer.split(" ")[1];
-        if (coord === "c") {
-          coord = compChoice(mark)
-        }
-        else {
-          coord = coord.split(",");
-        }
-        moveCallback(mark, coord)
+        var coord = answer.split(",");
       }
+      moveCallback(mark, coord)
     })
   };
 
-  var gameLoop = function() {
+  var gameLoop = function(currentPlayer) {
+    if (typeof(currentPlayer) === "undefined"){
+      var currentPlayer = 1;
+    }
     if (gameOver()){
       printBoard();
       console.log("Winner: " + gameOver());
@@ -94,9 +96,10 @@ var ticTacToe = function (endGameCallback) {
     }
     else{
       printBoard();
-      makeMove(function(mark, coord){
+      makeMove(currentPlayer, function(mark, coord){
         move(mark, coord);
-        gameLoop();
+        currentPlayer *= -1;
+        gameLoop(currentPlayer);
       })
     }
   };
